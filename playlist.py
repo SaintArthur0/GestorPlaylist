@@ -52,19 +52,59 @@ class ListaEnlazadaDoble:
             print(f"{marcador} {actual.cancion.titulo} - {actual.cancion.artista}")
             actual = actual.siguiente
         print("-----------------------\n")
-# --- PRUEBA DEL SISTEMA ---
-if __name__ == "__main__":
-    # Creamos nuestra playlist vacía
-    mi_playlist = ListaEnlazadaDoble()
+    # FUNCIÓN 3: Avanzar a la siguiente canción (Botón Siguiente)
+    def avanzar_cancion(self):
+        if self.actual and self.actual.siguiente:
+            self.actual = self.actual.siguiente
+            print(f"⏭️ Cambiando a: {self.actual.cancion.titulo}")
+        else:
+            print("🛑 Ya estás en la última canción de la playlist.")
 
-    # Simulamos que los clientes agregan canciones
-    c1 = Cancion(1, "Blinding Lights", "The Weeknd")
-    c2 = Cancion(2, "Bohemian Rhapsody", "Queen")
-    c3 = Cancion(3, "Shape of You", "Ed Sheeran")
+    # FUNCIÓN 4: Regresar a la canción anterior (Botón Anterior)
+    def retroceder_cancion(self):
+        if self.actual and self.actual.anterior:
+            self.actual = self.actual.anterior
+            print(f"⏮️ Regresando a: {self.actual.cancion.titulo}")
+        else:
+            print("🛑 Ya estás en la primera canción de la playlist.")   
+    # FUNCIÓN 5: Eliminar la canción actual (Porque ya terminó o se canceló)
+    def eliminar_actual(self):
+        # Caso 0: Lista vacía
+        if self.actual is None:
+            print("🛑 No hay ninguna canción sonando para eliminar.")
+            return
 
-    mi_playlist.agregar_cancion(c1)
-    mi_playlist.agregar_cancion(c2)
-    mi_playlist.agregar_cancion(c3)
+        nodo_a_eliminar = self.actual
+        print(f"🗑️ Eliminando de la fila: {nodo_a_eliminar.cancion.titulo}")
 
-    # Mostramos el resultado
-    mi_playlist.mostrar_playlist()
+        # Caso 1: Es la única canción en la lista
+        if self.cabeza == self.cola:
+            self.cabeza = None
+            self.cola = None
+            self.actual = None
+
+        # Caso 2: Es la primera canción (La cabeza)
+        elif nodo_a_eliminar == self.cabeza:
+            self.cabeza = self.cabeza.siguiente
+            self.cabeza.anterior = None
+            self.actual = self.cabeza  # La nueva actual es la que sigue
+
+        # Caso 3: Es la última canción (La cola)
+        elif nodo_a_eliminar == self.cola:
+            self.cola = self.cola.anterior
+            self.cola.siguiente = None
+            self.actual = self.cola  # La nueva actual es la anterior
+
+        # Caso 4: Está en medio de la lista
+        else:
+            nodo_anterior = nodo_a_eliminar.anterior
+            nodo_siguiente = nodo_a_eliminar.siguiente
+
+            # Puenteamos el nodo a eliminar
+            nodo_anterior.siguiente = nodo_siguiente
+            nodo_siguiente.anterior = nodo_anterior
+            
+            # Pasamos a la siguiente canción automáticamente
+            self.actual = nodo_siguiente
+
+        del nodo_a_eliminar  # Liberamos memoria         
