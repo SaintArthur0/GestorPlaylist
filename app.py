@@ -1,71 +1,39 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from playlist import ListaEnlazadaDoble, Cancion
+import random
 
 app = Flask(__name__)
 
-# Creamos la playlist global que compartirá todo el negocio
+# Creamos la playlist global en memoria
 playlist_negocio = ListaEnlazadaDoble()
 
-# Agregamos unas canciones por defecto para que no inicie vacío
+# Canciones iniciales de prueba
 playlist_negocio.agregar_cancion(Cancion(1, "Blinding Lights", "The Weeknd"))
 playlist_negocio.agregar_cancion(Cancion(2, "Bohemian Rhapsody", "Queen"))
 playlist_negocio.agregar_cancion(Cancion(3, "Shape of You", "Ed Sheeran"))
 
-# 1. RUTA PRINCIPAL: Aquí entra el administrador (la pantalla del negocio)
 @app.route('/')
 def index():
-    # Convertimos la lista enlazada a un arreglo de Python temporal 
-    # SOLO para poder pasárselo fácil a la vista HTML
+    # Pasamos los nodos de nuestra Lista Doble a un formato que el HTML entienda
     canciones_array = []
     actual = playlist_negocio.cabeza
     while actual is not None:
         canciones_array.append({
-            'id': actual.cancion.id,
             'titulo': actual.cancion.titulo,
             'artista': actual.cancion.artista,
             'es_actual': (actual == playlist_negocio.actual)
         })
         actual = actual.siguiente
         
-    cancion_sonando = playlist_negocio.actual.cancion if playlist_negocio.actual else None
+    # Validamos si hay alguna canción sonando actualmente
+    if playlist_negocio.actual:
+        txt_sonando = f"{playlist_negocio.actual.cancion.titulo} - {playlist_negocio.actual.cancion.artista}"
+    else:
+        txt_sonando = "Ninguna (Playlist vacía)"
 
-    return f"""
-    <h1>🎵 Panel del Negocio (Reproductor)</h1>
-    <h2>Reproduciendo ahora: {cancion_sonando.titulo if cancion_sonando else 'Ninguna'} - {cancion_sonando.artista if cancion_sonando else ''}</h2>
-    
-    <a href="/siguiente"><button style="font-size:20px;">⏭️ Siguiente</button></a>
-    <a href="/anterior"><button style="font-size:20px;">⏮️ Anterior</button></a>
-    <a href="/eliminar"><button style="font-size:20px; background-color:red; color:white;">🗑️ Terminar/Eliminar</button></a>
+    # Enviamos los datos ordenados al archivo HTML de la carpeta templates
+    return render_template('index.html', canciones=canciones_array, cancion_sonando=txt_sonando)
 
-    <h3>Fila de reproducción actual:</h3>
-    <ul>
-        {"".join([f"<li>{'<b>▶ ' if c['es_actual'] else ''}{c['titulo']} - {c['artista']}</b></li>" for c in canciones_array])}
-    </ul>
-    
-    <hr>
-    <h3>🔒 Agregar canción (Simulación Cliente/Admin)</h3>
-    <form action="/agregar" method="POST">
-        <input type="text" name="titulo" placeholder="Título" required>
-        <input type="text" name="artista" placeholder="Artista" required>
-        <button type="submit">Agregar a la fila</button>
-    </form>
-    """
-
-@app.route('/api/canciones')
-def api_canciones():
-    canciones_array = []
-    actual = playlist_negocio.cabeza
-    while actual is not None:
-        canciones_array.append({
-            'id': actual.cancion.id,
-            'titulo': actual.cancion.titulo,
-            'artista': actual.cancion.artista,
-            'es_actual': (actual == playlist_negocio.actual)
-        })
-        actual = actual.siguiente
-    return jsonify(canciones_array)
-
-# 2. RUTAS DE ACCIÓN: Mueven los punteros de la lista doble y redirigen a la pantalla principal
 @app.route('/siguiente')
 def siguiente():
     playlist_negocio.avanzar_cancion()
@@ -85,13 +53,11 @@ def eliminar():
 def agregar():
     titulo = request.form.get('titulo')
     artista = request.form.get('artista')
-    import random
-    nuevo_id = random.randint(100, 999) # ID rápido para la prueba
+    nuevo_id = random.randint(100, 999)
     
-    # Usamos el método de tu estructura de datos
+    # Inserción directa en la Lista Enlazada Doble
     playlist_negocio.agregar_cancion(Cancion(nuevo_id, titulo, artista))
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    # host='0.0.0.0' permite que otros celulares en la misma red Wi-Fi se conecten
     app.run(debug=True, host='0.0.0.0', port=5000)
