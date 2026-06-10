@@ -94,10 +94,7 @@
         <h2>{{ cancion_sonando }}</h2>
     </div>
     
-    <% if es_admin %>
-        <div style="background: #1DB954; color: #121212; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-            <strong>Modo Admin Activado</strong>
-        </div>
+    {% if es_admin %}
     <div class="controls">
         <a href="/anterior"><button>⏮️ Ant</button></a>
         <a href="/siguiente"><button>⏭️ Sig</button></a>
@@ -105,9 +102,10 @@
     </div>
     <p style="text-align: center;"><a href="/cliente" style="color: #aaa;">Ver vista de cliente</a></p>
     {% else %}
-    <p style="text-align: center; color: #1DB954; font-weight: bold;">Modo Cliente Activo u</p>
+    <p style="text-align: center; color: #1DB954; font-weight: bold;">Modo Cliente Activo</p>
     <p style="text-align: center;"><a href="/admin" style="color: #aaa;">🔑 Entrar como Admin</a></p>
     {% endif %}
+
     <h3>Fila de Reproducción</h3>
     <ul class="playlist">
         {% for c in canciones %}
