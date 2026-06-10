@@ -12,7 +12,6 @@ playlist_negocio.agregar_cancion(Cancion(1, "Blinding Lights", "The Weeknd"))
 playlist_negocio.agregar_cancion(Cancion(2, "Bohemian Rhapsody", "Queen"))
 playlist_negocio.agregar_cancion(Cancion(3, "Shape of You", "Ed Sheeran"))
 
-@app.route('/')
 
 @app.route('/admin')
 def admin():
@@ -26,14 +25,12 @@ def admin():
         })
         actual = actual.siguiente
         
-    
     if playlist_negocio.actual and playlist_negocio.actual.cancion:
         txt_sonando = f"{playlist_negocio.actual.cancion.titulo} - {playlist_negocio.actual.cancion.artista}"
     else:
         txt_sonando = "Ninguna (Playlist vacía)"
     
     return render_template('index.html', canciones=canciones_array, cancion_sonando=txt_sonando, es_admin=True)
-
 
 
 @app.route('/')
@@ -49,7 +46,6 @@ def cliente():
         })
         actual = actual.siguiente
         
-    
     if playlist_negocio.actual and playlist_negocio.actual.cancion:
         txt_sonando = f"{playlist_negocio.actual.cancion.titulo} - {playlist_negocio.actual.cancion.artista}"
     else:
@@ -78,9 +74,9 @@ def agregar():
     artista = request.form.get('artista')
     nuevo_id = random.randint(100, 999)
     
-    
     playlist_negocio.agregar_cancion(Cancion(nuevo_id, titulo, artista))
-    return redirect(url_for('admin'))
+    
+    return redirect(url_for('cliente'))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
