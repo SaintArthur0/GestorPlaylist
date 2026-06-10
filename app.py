@@ -13,20 +13,28 @@ playlist_negocio.agregar_cancion(Cancion(2, "Bohemian Rhapsody", "Queen"))
 playlist_negocio.agregar_cancion(Cancion(3, "Shape of You", "Ed Sheeran"))
 
 @app.route('/')
+
 @app.route('/admin')
 def admin():
     canciones_array = []
     actual = playlist_negocio.cabeza
     while actual is not None:
         canciones_array.append({
-            'titulo': actual.cancion.titulo, 'artista': actual.cancion.artista,
+            'titulo': actual.cancion.titulo, 
+            'artista': actual.cancion.artista,
             'es_actual': (actual == playlist_negocio.actual)
         })
         actual = actual.siguiente
-    txt_sonando = f"{playlist_negocio.actual.cancion.titulo} - {playlist_negocio.actual.cancion.artista}" if playlist_negocio.actual else "Ninguna"
+        
     
+    if playlist_negocio.actual and playlist_negocio.actual.cancion:
+        txt_sonando = f"{playlist_negocio.actual.cancion.titulo} - {playlist_negocio.actual.cancion.artista}"
+    else:
+        txt_sonando = "Ninguna (Playlist vacía)"
     
     return render_template('index.html', canciones=canciones_array, cancion_sonando=txt_sonando, es_admin=True)
+
+
 
 @app.route('/')
 @app.route('/cliente')
@@ -35,12 +43,17 @@ def cliente():
     actual = playlist_negocio.cabeza
     while actual is not None:
         canciones_array.append({
-            'titulo': actual.cancion.titulo, 'artista': actual.cancion.artista,
+            'titulo': actual.cancion.titulo, 
+            'artista': actual.cancion.artista,
             'es_actual': (actual == playlist_negocio.actual)
         })
         actual = actual.siguiente
-    txt_sonando = f"{playlist_negocio.actual.cancion.titulo} - {playlist_negocio.actual.cancion.artista}" if playlist_negocio.actual else "Ninguna"
+        
     
+    if playlist_negocio.actual and playlist_negocio.actual.cancion:
+        txt_sonando = f"{playlist_negocio.actual.cancion.titulo} - {playlist_negocio.actual.cancion.artista}"
+    else:
+        txt_sonando = "Ninguna (Playlist vacía)"
     
     return render_template('index.html', canciones=canciones_array, cancion_sonando=txt_sonando, es_admin=False)
 
